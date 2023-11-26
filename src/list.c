@@ -51,7 +51,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
         return 0;  // Indicar error
     }
 
-    if (index > list->size)
+    if (index >= list->size)
         index = list->size - 1;
 
     if (index < 0)
@@ -73,7 +73,8 @@ int index_list(int_ll_t *list, int index, int *out_value)
 int insert_list(int_ll_t *list, int index, int value)
 {
     pthread_mutex_lock(&list->lock);  // Bloquear antes de manipular la lista
-    if (index > list->size)
+
+    if (index >= list->size)
         index = list->size - 1 ;
 
     if (index < 0)
@@ -112,7 +113,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         return 0;  // Indicar error
     }
 
-    if (index > list->size)
+    if (index >= list->size)
         index = list->size - 1;
 
     if (index < 0)
