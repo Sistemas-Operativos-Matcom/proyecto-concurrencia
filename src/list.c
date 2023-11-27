@@ -3,6 +3,7 @@
 #include "semaphore.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "assert.h"
 
 // Init list structure
 int init_list(int_ll_t *list)
@@ -72,7 +73,6 @@ int index_list(int_ll_t *list, int index, int *out_value)
 int insert_list(int_ll_t *list, int index, int value)
 {
     pthread_mutex_lock(&(list->general_mutex));
-    list->size += 1;
 
     if(index <= 0 || list->first == NULL){
         int_ll_node* tmp = list->first;
@@ -87,6 +87,8 @@ int insert_list(int_ll_t *list, int index, int value)
         prev_node->next->value = value;
     }
 
+    list->size += 1;
+
     pthread_mutex_unlock(&(list->general_mutex));
     return 0;
 }
@@ -96,24 +98,30 @@ int remove_list(int_ll_t *list, int index, int *out_value)
 {
     pthread_mutex_lock(&(list->general_mutex));
     
+    int result = list->first == NULL;
     if(list->first != NULL){
-        list->size -= 1;
-        if(index <= 0){
+        if(index < 0){
+            index = 0;
+        }else if(index > list->size-1){
+            index = list->size-1;
+        }
+        
+        if(index == 0){
             int_ll_node* tmp = list->first;
             *out_value = tmp->value;
             list->first = list->first->next;
             free(tmp);
         }else{
             int_ll_node* prev_node = helper_get_node_at_index(list, index-1);
-            if(prev_node->next != NULL){
-                int_ll_node* tmp = prev_node->next;
-                *out_value = tmp->value;
-                prev_node->next = prev_node->next->next;
-                free(tmp);
-            }
+            int_ll_node* tmp = prev_node->next;
+            *out_value = tmp->value;
+            prev_node->next = prev_node->next->next;
+            free(tmp);
         }
+
+        list->size -= 1;
     }
 
     pthread_mutex_unlock(&(list->general_mutex));
-    return 0;
+    return result;
 }
