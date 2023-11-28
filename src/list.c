@@ -48,7 +48,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
     if (list->head == NULL) {
         // Lista vacía
         pthread_mutex_unlock(&list->lock);  // Desbloquear antes de retornar
-        return 0;  // Indicar error
+        return 0;
     }
 
     if (index >= list->size)
@@ -110,7 +110,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     if (list->head == NULL) {
         // Lista vacía
         pthread_mutex_unlock(&list->lock);  // Desbloquear antes de retornar
-        return 0;  // Indicar error
+        return 1;  // Indicar error
     }
 
     if (index >= list->size)

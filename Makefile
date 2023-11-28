@@ -1,6 +1,5 @@
 CFLAGS = -Wall -pthread
 CFILES := src/main.c src/list.c
 
-src/main: $(CFILES)
+bin/main: $(CFILES)
 	gcc $(CFLAGS) -o $@ $?
-
