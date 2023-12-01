@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Crear carpeta bin/
+        run: mkdir bin
       - name: Compilar proyecto
         run: make
       - name: Ejecutar pruebas
