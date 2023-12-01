@@ -1,9 +1,19 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+
+// Definición de la estructura del nodo
+typedef struct Nodo {
+    int dato;
+    struct Nodo* siguiente;
+} Nodo;
+
 // Integer Linked Lists
+// Definición de la estructura de la lista enlazada
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    Nodo* inicio;
+    int tamaño;
+    pthread_mutex_t mutex; // Mutex para sincronización
 } int_ll_t;
 
 // Init list structure
