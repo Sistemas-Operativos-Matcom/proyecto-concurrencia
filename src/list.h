@@ -1,10 +1,25 @@
+#include <semaphore.h>
+#include <pthread.h>
+
 #ifndef INT_LL_H
 #define INT_LL_H
+
+//Nodo de la lista
+typedef struct _integer_linked_list_node_t
+{
+  int value;//Valor almacenado en la lista
+  struct _integer_linked_list_node_t *next;//Próximo nodo de la lista
+} int_ll_node_t;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+  int_ll_node_t *head; //apuntador a la cabeza de la lista
+  int size; //tamaño de la lista
+  sem_t *sem; //semáforo para limitar el acceso a la estructura de la lista
+  sem_t *sem_empty; //semáforo para evitar acceso de index_list y remove_list cuando la lista esté vacía
 } int_ll_t;
+
 
 // Init list structure
 int init_list(int_ll_t *list);
