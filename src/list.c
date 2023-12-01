@@ -1,43 +1,99 @@
 #include "list.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 // Init list structure
 int init_list(int_ll_t *list)
 {
-    // TODO: Your code here!
+    if (!list) return -1;
+    list->head = NULL;
+    list->size = 0;
     return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    // TODO: Your code here!
+    if (!list) return -1;
+    node_t *current = list->head;
+    node_t *next;
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+    list->head = NULL;
+    list->size = 0;
     return 0;
 }
 
 // Get list size
 int size_list(int_ll_t *list)
 {
-    // TODO: Your code here!
-    return 0;
+    if (!list) return -1;
+    return list->size;
 }
 
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
-    // TODO: Your code here!
+    if (!list || index < 0 || index >= list->size) return -1;
+
+    node_t *current = list->head;
+
+    for (int i = 0; i < index; i++) {
+        current = current->next;
+    }
+
+    *out_value = current->data;
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    // TODO: Your code here!
+    if (!list || index < 0 || index > list->size) return -1;
+    node_t *new_node = (node_t*)malloc(sizeof(node_t));
+    if (!new_node) return -1;
+    new_node->data = value;
+    if (index == 0) {
+        new_node->next = list->head;
+        list->head = new_node;
+    } else {
+        node_t *current = list->head;
+        for (int i = 0; i < index - 1; i++) {
+            current = current->next;
+        }
+        new_node->next = current->next;
+        current->next = new_node;
+    }
+    list->size++;
     return 0;
 }
 
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
-    // TODO: Your code here!
+    if (!list || index < 0 || index >= list->size) return -1;
+
+    node_t *current = list->head;
+    node_t *temp_node = NULL;
+
+    if (index == 0) {
+        temp_node = list->head;
+        *out_value = temp_node->data;
+        list->head = list->head->next;
+        free(temp_node);
+    } else {
+        for (int i = 0; i < index - 1; i++) {
+            current = current->next;
+        }
+        temp_node = current->next;
+        *out_value = temp_node->data;
+        current->next = temp_node->next;
+        free(temp_node);
+    }
+
+    list->size--;
     return 0;
 }
