@@ -5,3 +5,8 @@ bin/main: $(CFILES)
 	mkdir -p bin
 	gcc $(CFLAGS) -o $@ $?
 
+clean:
+	rm -rf bin/
+
+run:
+	./bin/main
