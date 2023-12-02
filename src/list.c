@@ -56,8 +56,8 @@ int free_list(int_ll_t *list)
     }
 
     int x = pthread_mutex_destroy(&(list->lock));
-     if (!x)
-         free(list);
+    if (!x)
+        free(list);
     return x;
 }
 
@@ -128,7 +128,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         else
         {
             node_t *prev = get_item_at(list, index - 1);
-            while (prev->next == NULL)
+            while (prev->next == NULL && index > 0)
             {
                 index -= 1;
                 prev = get_item_at(list, index - 1);
