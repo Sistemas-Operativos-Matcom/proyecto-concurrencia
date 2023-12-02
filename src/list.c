@@ -1,19 +1,21 @@
 #include "list.h"
 #include "stdio.h"
 #include "stdlib.h"
-
+ 
 // Init list structure
 int init_list(int_ll_t *list)
 {
     list->root = NULL;
     list->size = 0;
     list->last = NULL;
+    pthread_mutex_init(&list->lock, NULL);
     return 0;
 } 
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
+    pthread_mutex_lock(&list->lock);
     Node *u = list->root;
     while (u != NULL)
     {
@@ -21,27 +23,34 @@ int free_list(int_ll_t *list)
         u = u->next;
         free(v);
     }
-    free(list);    
+    pthread_mutex_unlock(&list->lock);
+    free(list);
     return 0;
 }
 
 // Get list size
 int size_list(int_ll_t *list)
 {
-    return list->size;
+    pthread_mutex_lock(&list->lock);
+    int size = list->size;
+    pthread_mutex_unlock(&list->lock);
+    return size;
 }
 
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->lock);
     if(index <= 0)
     {
         *out_value = list->root->value;
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
     if(index >= list->size - 1)
     {
         *out_value = list->last->value;
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
     Node *u = list->root;
@@ -50,17 +59,30 @@ int index_list(int_ll_t *list, int index, int *out_value)
         if(u->index == index)
         {
             *out_value = u->value;
+            pthread_mutex_unlock(&list->lock);
             return 0;
         }
         u = u->next;        
-    }   
+    }
+    pthread_mutex_unlock(&list->lock);  
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    Node *node = newNode(index, value);
+    pthread_mutex_lock(&list->lock);
+    //Node *node = newNode(index, value);
+    Node *node = (Node *)malloc(sizeof(Node));
+    if (node == NULL) 
+    {
+        perror("malloc");
+        pthread_mutex_unlock(&list->lock);
+        return 1;
+    }
+    node->value = value;
+    node->index = index;
+    node->next = NULL;
 
     if(list->size == 0)
     {
@@ -68,6 +90,7 @@ int insert_list(int_ll_t *list, int index, int value)
         list->root = node;
         list->last = node;
         list->size = 1;
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
     if(index <= 0)
@@ -83,6 +106,7 @@ int insert_list(int_ll_t *list, int index, int value)
             u->index += 1;
             u = u->next;        
         }
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
     if(index >= list->size - 1)
@@ -91,6 +115,7 @@ int insert_list(int_ll_t *list, int index, int value)
         list->last->next = node;
         list->last = node;
         list->size += 1;
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }    
     Node *u = list->root;
@@ -108,13 +133,15 @@ int insert_list(int_ll_t *list, int index, int value)
             continue;
         }
         u = u->next;
-    } 
+    }
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
 
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->lock);
     if(list->size == 0) return 0;
     if(index <= 0)
     {
@@ -130,6 +157,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
             u->index -= 1;
             u = u->next;
         }
+        pthread_mutex_unlock(&list->lock);
         return 0;       
     }
     if(index >= list->size - 1)
@@ -148,6 +176,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
             u = u->next;
         }
         free(node);
+        pthread_mutex_unlock(&list->lock);
         return 0;        
     }
 
@@ -166,5 +195,6 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         }
         u = u->next;
     }
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }

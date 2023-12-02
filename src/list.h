@@ -1,9 +1,10 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "pthread.h"
 #ifndef INT_LL_H
 #define INT_LL_H
 // Integer Linked Lists
-
+ 
 #include "stdio.h"
 
 typedef struct node
@@ -11,21 +12,22 @@ typedef struct node
     int index;
     int value;
     struct node *next;
-} Node; 
+} Node;  
 
-Node *newNode(int index, int value)
+/*Node *newNode(int index, int value)
 {
     Node *node = (Node *)malloc(sizeof(Node));
     node->value = value;
     node->index = index;
     node->next = NULL;
     return node;
-}
+}*/
 typedef struct _integer_linked_list_t
 {
     Node *root;
     int size;
     Node *last;
+    pthread_mutex_t lock;
 } int_ll_t;
 
 /*int_ll_t *newList()
