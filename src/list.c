@@ -44,7 +44,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
     if (list == NULL)
     {
         pthread_mutex_unlock(&(list->mutex));  
-        return -1;  // Check for invalid parameters
+        return 1;  // Check for invalid parameters
     }    
 
     if(index < 0) index = 0;             // Set index to zero if negative
@@ -128,7 +128,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     if (list == NULL || list->size == 0) 
     {
         pthread_mutex_unlock(&(list->mutex));
-        return -1;  // Check for invalid parameters or empty list
+        return 1;  // Check for invalid parameters or empty list
     }
     if (index < 0) index = 0;             // Set index to zero if negative
     else if (index >= list->size) index = list->size - 1; // Set index to the last node if out of range
