@@ -70,7 +70,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
     {
         perror("Invalid index, List is empty");
         pthread_mutex_unlock(&list->lock);
-        return 0;
+        return -1;
     }
 
     *out_value = find_node(list, index)->value;
