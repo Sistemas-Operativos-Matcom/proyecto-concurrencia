@@ -1,5 +1,6 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include <pthread.h>
 
 // Definición de la estructura del nodo
 typedef struct Nodo {

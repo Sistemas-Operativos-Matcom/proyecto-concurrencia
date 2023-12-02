@@ -1,19 +1,21 @@
 #include "list.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h> // Biblioteca para manejar hilos y bloqueos
 
 // Init list structure
 // Inicializa la lista
 int init_list(int_ll_t* list) {
+    pthread_mutex_init(&(list->mutex), NULL); // Inicializa el mutex
     list->inicio = NULL;
     list->tamaño = 0;
-    pthread_mutex_init(&list->mutex, NULL); // Inicializa el mutex
-    return 1; // Éxito
+    return 0; // Éxito
 }
 
 // Free list structure
 // Libera la memoria utilizada por la lista
 int free_list(int_ll_t* list) {
-    pthread_mutex_lock(&list->mutex); // Bloquea el acceso a la lista
+    if (list == NULL) return -1;
 
     Nodo* actual = list->inicio;
     while (actual != NULL) 
@@ -22,39 +24,55 @@ int free_list(int_ll_t* list) {
         free(actual);
         actual = siguiente;
     }
-    list->inicio = NULL;
-    list->tamaño = 0;
+    free(list);
+    // list->inicio = NULL;
+    // list->tamaño = 0;
 
-    pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+    //pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
     pthread_mutex_destroy(&list->mutex); // Destruye el mutex
-    return 1; // Éxito
+    return 0; // Éxito
 }
 
 // Get list size
 // Retorna el tamaño de la lista
 int size_list(int_ll_t* list) {
-    return list->tamaño;
+    pthread_mutex_lock(&list->mutex); // Bloquea el acceso a la lista
+    int tam = list->tamaño;
+    pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+    return tam;
 }
 
 // Get element at index
 // Retorna el elemento en un índice especificado
 int index_list(int_ll_t* list, int index, int* out_value) {
+    pthread_mutex_lock(&list->mutex); // Bloquea el acceso a la lista
+    if (list == NULL || list->tamaño == 0)
+    {
+        pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+        return 1;
+    }
     if (index < 0) index = 0;
     else if (index >= list->tamaño) index = list->tamaño - 1;
 
     Nodo* actual = list->inicio;
     for (int i = 0; i < index; ++i) 
     {
-        actual = actual->siguiente;
+        if (actual != NULL) actual = actual->siguiente;
     }
     *out_value = actual->dato;
-    return 1; // Éxito
+    pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+    return 0; // Éxito
 }
 
 // Insert element at index
 // Inserta un elemento en un índice especificado
 int insert_list(int_ll_t* list, int index, int value) {
     pthread_mutex_lock(&list->mutex); // Bloquea el acceso a la lista
+    if (list == NULL)
+    {
+        pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+        return 1;
+    }
 
     if (index < 0) index = 0;
     else if (index > list->tamaño) index = list->tamaño;
@@ -62,7 +80,7 @@ int insert_list(int_ll_t* list, int index, int value) {
     Nodo* nuevoNodo = (Nodo*)malloc(sizeof(Nodo));
     nuevoNodo->dato = value;
 
-    if (index == 0) 
+    if (index == 0 || list->inicio == NULL) 
     {
         nuevoNodo->siguiente = list->inicio;
         list->inicio = nuevoNodo;
@@ -72,7 +90,7 @@ int insert_list(int_ll_t* list, int index, int value) {
         Nodo* actual = list->inicio;
         for (int i = 0; i < index - 1; ++i) 
         {
-            actual = actual->siguiente;
+            if (actual != NULL) actual = actual->siguiente;
         }
         nuevoNodo->siguiente = actual->siguiente;
         actual->siguiente = nuevoNodo;
@@ -81,13 +99,19 @@ int insert_list(int_ll_t* list, int index, int value) {
     list->tamaño++;
 
     pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
-    return 1; // Éxito
+    return 0; // Éxito
 }
 
 // Remove element at index
 // Elimina un elemento en un índice especificado
 int remove_list(int_ll_t* list, int index, int* out_value) {
     pthread_mutex_lock(&list->mutex); // Bloquea el acceso a la lista
+
+    if (list == NULL || list->tamaño == 0)
+    {
+        pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
+        return 1;
+    }
 
     if (index < 0) index = 0;
     else if (index >= list->tamaño) index = list->tamaño - 1;
@@ -113,25 +137,6 @@ int remove_list(int_ll_t* list, int index, int* out_value) {
     free(nodoEliminar);
     list->tamaño--;
     pthread_mutex_unlock(&list->mutex); // Desbloquea el acceso a la lista
-    return 1; // Éxito
+    return 0; // Éxito
 }
 
-// int main() {
-//     // Ejemplo de uso
-//     int_ll_t lista;
-//     init_list(&lista);
-
-//     insert_list(&lista, 0, 10);
-//     insert_list(&lista, 1, 20);
-//     insert_list(&lista, 1, 15);
-
-//     int value;
-//     index_list(&lista, 1, &value);
-//     printf("Elemento en el índice 1: %d\n", value);
-
-//     remove_list(&lista, 1, &value);
-//     printf("Elemento eliminado: %d\n", value);
-
-//     free_list(&lista);
-//     return 0;
-// }
