@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+// #include <semaphore.h>
+#include <pthread.h>
 
 #include "list.h"
 
@@ -6,37 +9,56 @@
 int init_list(int_ll_t *list)
 {
     list = malloc(sizeof(int_ll_t));
+    list->size = 0;
+    list->nodes = malloc(sizeof(ll_node_t));
+
+    pthread_mutex_init(&list->mutex, NULL);
+
     return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
+    pthread_mutex_lock(&list->mutex);
     list->size = 0;
     list->nodes = NULL;
+    pthread_mutex_unlock(&list->mutex);
+
+    pthread_mutex_destroy(&list->mutex);
+
     return 0;
 }
 
 // Get list size
 int size_list(int_ll_t *list)
 {
-    return list->size;
+    pthread_mutex_lock(&list->mutex);
+    int size = list->size;
+    pthread_mutex_unlock(&list->mutex);
+
+    return size;
 }
 
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->mutex);
     ll_node_t *current = list->nodes;
+
+    if(current == NULL) {
+        pthread_mutex_unlock(&list->mutex);
+        return 1;
+    }
 
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
 
-        current = current->next;
+        current = (ll_node_t *) current->next;
     }
 
-    if(current == NULL) return 1;
-
     *out_value = current->value;
+    pthread_mutex_unlock(&list->mutex);
 
     return 0;
 }
@@ -44,29 +66,36 @@ int index_list(int_ll_t *list, int index, int *out_value)
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
+    ll_node_t *new = malloc(sizeof(ll_node_t));
+    new->value = value;
+    
+    pthread_mutex_lock(&list->mutex);
     ll_node_t *current = list->nodes;
+
+    if(current == NULL) {
+        list->nodes = new;
+        list->size++;
+        pthread_mutex_unlock(&list->mutex);
+        return 0;
+    }
+
 
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
 
-        current = current->next;
-    }
-
-    ll_node_t *new = malloc(sizeof(ll_node_t));
-    new->value = value;
-
-    if(current == NULL) {
-        current = new;
-        return 0;
+        current = (ll_node_t *) current->next;
     }
 
     if(current->next == NULL) {
-        current->next = new;
+        current->next = (struct ll_node_t *) new;
     } else {
-        ll_node_t *next = current->next;
-        new->next = next;
-        current->next = new;
+        ll_node_t *next = (ll_node_t *) current->next;
+        new->next = (struct ll_node_t *) next;
+        current->next = (struct ll_node_t *) new;
     }
+
+    list->size++;
+    pthread_mutex_unlock(&list->mutex);
 
     return 0;
 }
@@ -74,25 +103,36 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->mutex);
     ll_node_t *current = list->nodes;
     ll_node_t *prev = NULL;
 
+    if(current == NULL) {
+        pthread_mutex_unlock(&list->mutex);
+        return 1;
+    }
+    
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
 
         prev = current;
-        current = current->next;
+        current = (ll_node_t *) current->next;
     }
 
-    if(current == NULL) return 1;
+    if(current == NULL) {
+        pthread_mutex_unlock(&list->mutex);
+        return 1;
+    }
 
     if(prev == NULL) {
-        list->nodes = current->next;
+        list->nodes = (ll_node_t *) current->next;
     } else {
-        prev->next = current->next;
+        prev->next = (struct ll_node_t *) current->next;
     }
 
     *out_value = current->value;
+    list->size--;
+    pthread_mutex_unlock(&list->mutex);
 
     return 0;
 }

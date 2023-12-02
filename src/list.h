@@ -1,3 +1,6 @@
+#include <semaphore.h>
+#include <pthread.h>
+
 #ifndef INT_LL_H
 #define INT_LL_H
 
@@ -8,6 +11,8 @@ typedef struct ll_node {
 } ll_node_t;
 typedef struct _integer_linked_list_t
 {
+    sem_t sem;
+    pthread_mutex_t mutex;
     int size;
     ll_node_t *nodes;
 } int_ll_t;
