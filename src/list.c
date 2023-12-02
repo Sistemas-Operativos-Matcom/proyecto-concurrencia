@@ -53,13 +53,11 @@ int index_list(int_ll_t *list, int index, int *out_value)
 
     pthread_mutex_unlock(&list->mutex);
 
-    pthread_mutex_lock(&list->mutex);
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
 
         current = (ll_node_t *) current->next;
     }
-    pthread_mutex_unlock(&list->mutex);
 
     pthread_mutex_lock(&list->mutex);
     *out_value = current->value;
