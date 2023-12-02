@@ -5,16 +5,17 @@
 // Init list structure
 int init_list(int_ll_t *list)
 {
-    if (!list) return -1;
+    if (!list) return 1;
+    pthread_mutex_init(&list->mutex, NULL);
     list->head = NULL;
     list->size = 0;
-    return pthread_mutex_init(&list->mutex, NULL);
+    return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    if (!list) return -1;
+    if (!list) return 1;
     pthread_mutex_lock(&list->mutex);
     node_t *current = list->head;
     node_t *next;
@@ -33,7 +34,7 @@ int free_list(int_ll_t *list)
 // Get list size
 int size_list(int_ll_t *list)
 {
-    if (!list) return -1;
+    if (!list) return 1;
     pthread_mutex_lock(&list->mutex);
     int size = list -> size;
     pthread_mutex_unlock(&list->mutex);
@@ -43,7 +44,7 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
-    if (!list || index < 0 || index >= list->size) return -1;
+    if (!list || index < 0 || index >= list->size) return 1;
     pthread_mutex_lock(&list->mutex);
     node_t *current = list->head;
 
@@ -59,12 +60,12 @@ int index_list(int_ll_t *list, int index, int *out_value)
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    if (!list || index < 0 || index > list->size) return -1;
+    if (!list || index < 0 || index > list->size) return 1;
     pthread_mutex_lock(&list->mutex);
     node_t *new_node = (node_t*)malloc(sizeof(node_t));
     if (!new_node) {
         pthread_mutex_unlock(&list->mutex);
-        return -1;
+        return 1;
     }
     new_node->data = value;
     if (index == 0) {
@@ -86,7 +87,7 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
-    if (!list || index < 0 || index >= list->size) return -1;
+    if (!list || index < 0 || index >= list->size) return 1;
     pthread_mutex_lock(&list->mutex);
     node_t *current = list->head;
     node_t *temp_node = NULL;
@@ -96,7 +97,6 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         *out_value = temp_node->data;
         list->head = list->head->next;
     } else {
-        node_t *current = list->head;
         for (int i = 0; i < index - 1; i++) {
             current = current->next;
         }
