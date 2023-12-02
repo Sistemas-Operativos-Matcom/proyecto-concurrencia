@@ -56,8 +56,8 @@ int free_list(int_ll_t *list)
     }
 
     int x = pthread_mutex_destroy(&(list->lock));
-    if (!x)
-        free(list);
+     if (!x)
+         free(list);
     return x;
 }
 
@@ -76,7 +76,11 @@ int index_list(int_ll_t *list, int index, int *out_value)
     pthread_mutex_lock(&(list->lock));
     node_t *curr = get_item_at(list, index);
     if (curr == NULL)
-        *out_value = -1;
+    {
+        //*out_value = 1;
+        pthread_mutex_unlock(&(list->lock));
+        return 1;
+    }
     else
         *out_value = curr->val;
     pthread_mutex_unlock(&(list->lock));
