@@ -1,112 +1,141 @@
 #include "list.h"
 #include <stdlib.h>
 
-int init_list(int_ll_t *list) {
-    if (list == NULL) return -1;
-    list->head = NULL;  // Initialize the head pointer to NULL
+// Init list structure
+int init_list(int_ll_t *list)
+{
+    // Initialize the linked list structure
+    list->head = NULL;              // Set the head pointer to NULL (empty list)
+    list->size = 0;                 // Initialize size to zero (empty list)
+    pthread_mutex_init(&(list->mutex), NULL);  // Initialize the mutex for thread safety
     return 0;
 }
 
-int free_list(int_ll_t *list) {
-    if (list == NULL) return -1;
+// Free list structure
+int free_list(int_ll_t *list)
+{
+    if (list == NULL) return -1;    // Check if list is NULL
 
+    // Free the allocated memory for each node and destroy the mutex
     Node *current = list->head;
     while (current != NULL) {
         Node *temp = current;
         current = current->next;
-        free(temp);
+        free(temp);                 // Free memory of each node
     }
-    
-    list->head = NULL;  // Set head to NULL after freeing all nodes
+
+    pthread_mutex_destroy(&(list->mutex));  // Destroy the mutex
     return 0;
 }
 
-int size_list(int_ll_t *list) {
-    if (list == NULL) return -1;
-
-    int size = 0;
-    Node *current = list->head;
-    while (current != NULL) {
-        size++;
-        current = current->next;
-    }
-    return size;
+// Get list size
+int size_list(int_ll_t *list)
+{
+    pthread_mutex_lock(&(list->mutex));   
+    int size = list->size;                
+    pthread_mutex_unlock(&(list->mutex)); 
+    return size;                          
 }
 
-int index_list(int_ll_t *list, int index, int *out_value) {
-    if (list == NULL || index < 0) return -1;
+// Get element at index
+int index_list(int_ll_t *list, int index, int *out_value)
+{
+    if (list == NULL || index < 0) return -1;  // Check for invalid parameters
+
+    pthread_mutex_lock(&(list->mutex));   // Lock the mutex for thread safety
 
     Node *current = list->head;
-    int i = 0;
-    while (current != NULL && i < index) {
-        current = current->next;
-        i++;
+    int i;
+    for (i = 0; i < index && current != NULL; i++) {
+        current = current->next;          // Traverse to the specified index
     }
 
     if (current != NULL) {
-        *out_value = current->value;
-        return 0;
+        *out_value = current->value;      // Get the value at the specified index
+    } else if (list->size > 0) {
+        current = list->head;
+        while (current->next != NULL) {
+            current = current->next;      // Traverse to the last node if index is out of range
+        }
+        *out_value = current->value;      // Get the value of the last node
+    } else {
+        pthread_mutex_unlock(&(list->mutex));  // Unlock the mutex before returning error for an empty list
+        return -1;                           // Empty list error
     }
 
-    return -1;  // Index out of range or empty list
+    pthread_mutex_unlock(&(list->mutex));   // Unlock the mutex
+    return 0;
 }
 
-int insert_list(int_ll_t *list, int index, int value) {
-    if (list == NULL || index < 0) return -1;
+// Insert element at index
+int insert_list(int_ll_t *list, int index, int value)
+{
+    if (list == NULL || index < 0) return -1;  // Check for invalid parameters
 
     Node *new_node = (Node *)malloc(sizeof(Node));
-    if (new_node == NULL) return -1;
-    
+    if (new_node == NULL) return -1;          // Check for memory allocation error
+
     new_node->value = value;
+    new_node->next = NULL;
+
+    pthread_mutex_lock(&(list->mutex));   // Lock the mutex for thread safety
 
     if (index == 0) {
-        new_node->next = list->head;
+        new_node->next = list->head;     // Insert at the beginning
         list->head = new_node;
-        return 0;
+    } else {
+        Node *current = list->head;
+        int i;
+        for (i = 0; i < index - 1 && current != NULL; i++) {
+            current = current->next;      // Traverse to the node before the specified index
+        }
+
+        if (current != NULL) {
+            new_node->next = current->next; // Insert at the specified index
+            current->next = new_node;
+        } else {
+            free(new_node);               // Free memory if index is out of range
+            pthread_mutex_unlock(&(list->mutex));  // Unlock the mutex before returning error
+            return -1;                  // Index out of range error
+        }
     }
 
-    Node *current = list->head;
-    int i = 0;
-    while (current != NULL && i < index - 1) {
-        current = current->next;
-        i++;
-    }
-
-    if (current != NULL) {
-        new_node->next = current->next;
-        current->next = new_node;
-        return 0;
-    }
-
-    free(new_node);
-    return -1;  // Index out of range or empty list
+    list->size++;                      // Increment the size of the list
+    pthread_mutex_unlock(&(list->mutex));  // Unlock the mutex
+    return 0;
 }
 
-int remove_list(int_ll_t *list, int index, int *out_value) {
-    if (list == NULL || index < 0 || list->head == NULL) return -1;
+// Remove element at index
+int remove_list(int_ll_t *list, int index, int *out_value)
+{
+    if (list == NULL || index < 0 || list->size == 0) return -1;  // Check for invalid parameters or empty list
 
+    pthread_mutex_lock(&(list->mutex));   // Lock the mutex for thread safety
+
+    Node *temp = NULL;
     if (index == 0) {
-        Node *temp = list->head;
-        *out_value = temp->value;
-        list->head = list->head->next;
-        free(temp);
-        return 0;
+        temp = list->head;
+        *out_value = temp->value;         // Get the value of the node to be removed
+        list->head = temp->next;          // Remove from the beginning
+    } else {
+        Node *current = list->head;
+        int i;
+        for (i = 0; i < index - 1 && current != NULL; i++) {
+            current = current->next;      // Traverse to the node before the specified index
+        }
+
+        if (current != NULL && current->next != NULL) {
+            temp = current->next;
+            *out_value = temp->value;     // Get the value of the node to be removed
+            current->next = temp->next;   // Remove at the specified index
+        } else {
+            pthread_mutex_unlock(&(list->mutex));  // Unlock the mutex before returning error
+            return -1;                  // Index out of range error
+        }
     }
 
-    Node *current = list->head;
-    int i = 0;
-    while (current != NULL && i < index - 1) {
-        current = current->next;
-        i++;
-    }
-
-    if (current != NULL && current->next != NULL) {
-        Node *temp = current->next;
-        *out_value = temp->value;
-        current->next = temp->next;
-        free(temp);
-        return 0;
-    }
-
-    return -1;  // Index out of range or empty list
+    free(temp);                       // Free memory of the removed node
+    list->size--;                     // Decrement the size of the list
+    pthread_mutex_unlock(&(list->mutex));  // Unlock the mutex
+    return 0;
 }
