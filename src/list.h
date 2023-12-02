@@ -1,9 +1,19 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+
+#include <pthread.h>
+
+// Define la estructura de un nodo de la lista
+typedef struct Node {
+    int value;
+    struct Node* next;
+} node_t;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    node_t* head;           // Puntero al primer nodo de la lista
+    pthread_mutex_t mutex; // Mutex para sincronización
 } int_ll_t;
 
 // Init list structure
