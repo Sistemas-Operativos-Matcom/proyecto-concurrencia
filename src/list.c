@@ -51,12 +51,17 @@ int index_list(int_ll_t *list, int index, int *out_value)
         return 1;
     }
 
+    pthread_mutex_unlock(&list->mutex);
+
+    pthread_mutex_lock(&list->mutex);
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
 
         current = (ll_node_t *) current->next;
     }
+    pthread_mutex_unlock(&list->mutex);
 
+    pthread_mutex_lock(&list->mutex);
     *out_value = current->value;
     pthread_mutex_unlock(&list->mutex);
 
@@ -78,7 +83,6 @@ int insert_list(int_ll_t *list, int index, int value)
         pthread_mutex_unlock(&list->mutex);
         return 0;
     }
-
 
     for(int i = 0; i < index; i++) {
         if(current->next == NULL) break;
