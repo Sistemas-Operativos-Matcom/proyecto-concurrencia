@@ -56,8 +56,8 @@ int free_list(int_ll_t *list)
     }
 
     int x = pthread_mutex_destroy(&(list->lock));
-    // if (!ret)
-    //     free(list);
+     if (!x)
+         free(list);
     return x;
 }
 
@@ -67,7 +67,7 @@ int size_list(int_ll_t *list)
     pthread_mutex_lock(&(list->lock));
     int size = list->size;
     pthread_mutex_unlock(&(list->lock));
-    return size;
+    return size > 0 ? size : 1;
 }
 
 // Get element at index
