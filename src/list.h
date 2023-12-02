@@ -1,9 +1,17 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+
+typedef struct node
+{
+    int value;
+    void* next;
+} node_t;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    int size; 
+    node_t* root;
 } int_ll_t;
 
 // Init list structure
