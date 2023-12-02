@@ -1,10 +1,22 @@
+#include <semaphore.h>
+#include <pthread.h>
+
 #ifndef INT_LL_H
 #define INT_LL_H
+
 // Integer Linked Lists
+typedef struct ll_node {
+    int value;
+    struct ll_node_t *next;
+} ll_node_t;
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    sem_t sem;
+    pthread_mutex_t mutex;
+    int size;
+    ll_node_t *nodes;
 } int_ll_t;
+
 
 // Init list structure
 int init_list(int_ll_t *list);
