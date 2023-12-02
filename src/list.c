@@ -62,7 +62,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
     if (current == NULL) // Si el nodo actual es NULL, la lista está vacía
     { 
         pthread_mutex_unlock(&list->lock); // Desbloquear el mutex
-        return 0;
+        return 1;
     }
 
     index = adj_index(index, list->size);  
