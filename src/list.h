@@ -1,5 +1,6 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include <pthread.h>
 
 typedef struct node {
     int data;
@@ -9,6 +10,7 @@ typedef struct node {
 typedef struct _integer_linked_list_t
 {
     node_t *head;
+    pthread_mutex_t mutex;
     int size;
 } int_ll_t;
 
