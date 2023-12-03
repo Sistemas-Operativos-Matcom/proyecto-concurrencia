@@ -4,28 +4,42 @@
 #include "stdio.h"
 
 int size = 0;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t size_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int_ll_t *add_element(int value, int_ll_t *next)
 {
     int_ll_t *new = (int_ll_t *)malloc(sizeof(int_ll_t));
     new->value = value;
     new->next = next;
-    pthread_mutexattr_init(&mutex);
     return new;
 }
 
 // Init list structure
 int init_list(int_ll_t *list)
 {
-    // TODO: Your code here!
+    list = add_element(0, NULL);
     return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    // TODO: Your code here!
+    pthread_mutex_lock(&list_mutex);
+
+    int_ll_t *old = list;
+    int_ll_t *current;
+
+    while(old->next)
+    {
+        current = old->next;
+        free(old);
+        old = current;
+    }
+    free(old);
+
+    pthread_mutex_unlock(&list_mutex);
     return 0;
 }
 

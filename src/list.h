@@ -3,8 +3,6 @@
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    pthread_mutex_t mutex;
-
     int value;
 
     struct _integer_linked_list_t *next;
