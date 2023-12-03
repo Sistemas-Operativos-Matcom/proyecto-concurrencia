@@ -3,7 +3,9 @@
 // Init list structure
 int init_list(int_ll_t *list)
 {
-    // TODO: Your code here!
+    list->root = NULL;
+    list->size = 0;
+    pthread_mutex_init(&list->lock, NULL);
     return 0;
 }
 
