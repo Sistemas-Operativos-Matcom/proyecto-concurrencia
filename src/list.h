@@ -3,7 +3,9 @@
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    int size;
+    int value;
+    struct int_ll_t *NextNode;
 } int_ll_t;
 
 // Init list structure
