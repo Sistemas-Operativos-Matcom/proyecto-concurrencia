@@ -6,7 +6,7 @@
 typedef struct node
 {
     int value;
-    void* next;
+    struct node* next;
 } node_t;
 
 // Integer Linked Lists
