@@ -43,7 +43,38 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
-    // TODO: Your code here!
+    pthread_mutex_lock(&list->lock);
+    
+    // En caso que la lista esté vacía
+    if (list->size == 0)
+    {
+        pthread_mutex_unlock(&list->lock);
+        return 1;
+    }
+
+    // Arreglar index fuera de rango
+    if (index < 0)
+    {
+        index = 0;
+    }
+    if (index >= list->size)
+    {
+        index = list->size-1;
+    }
+
+    int count = 0;
+    node* temp = list->root;
+    // Buscar el nodo cque ocupa el index
+    while (count < index && temp != NULL)
+    {
+        count++;
+        temp = temp->next;
+    }
+
+    if (temp != NULL) {
+        *out_value = temp->value;
+    }
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
 
