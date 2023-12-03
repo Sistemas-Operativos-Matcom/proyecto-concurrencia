@@ -1,17 +1,16 @@
 #ifndef INT_LL_H
 #define INT_LL_H
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <pthread.h>
 
-// Definiendo estructura: Node
+// Definiendo estructura: Node--------------------------------------------------------------------------------------------------
 typedef struct Node
 {
-    int data;
+    int value;
     struct Node *next;
 } Node;
 
-// Definiendo estructura: Integer Linked Lists
+// Definiendo estructura: Integer Linked Lists----------------------------------------------------------------------------------
 typedef struct _integer_linked_list_t
 {
     struct Node *head;
