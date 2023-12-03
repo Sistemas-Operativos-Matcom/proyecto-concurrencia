@@ -43,6 +43,9 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    if(list->size==0)
+        return 1;
+    
     pthread_mutex_lock(&list->lock);
     if (index < 0)
         index = 0;
@@ -73,7 +76,7 @@ int insert_list(int_ll_t *list, int index, int value)
     if (new_node == NULL)
     {
         pthread_mutex_unlock(&list->lock);
-        return -1;
+        return 1;
     }
 
     new_node->value = value;
@@ -103,6 +106,9 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    if(list->size==0)
+        return 1;
+
     pthread_mutex_lock(&list->lock);
     if (index < 0)
         index = 0;
