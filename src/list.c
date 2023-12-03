@@ -27,6 +27,7 @@ int free_list(int_ll_t *list)
 
     pthread_mutex_unlock(&list->lock);  // Desbloquear después de manipular la lista
     pthread_mutex_destroy(&list->lock);  // Destruir el bloqueo
+    free(list);
 
     return 0;
 }
@@ -48,7 +49,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
     if (list->head == NULL) {
         // Lista vacía
         pthread_mutex_unlock(&list->lock);  // Desbloquear antes de retornar
-        return 0;
+        return 1;
     }
 
     if (index >= list->size)
