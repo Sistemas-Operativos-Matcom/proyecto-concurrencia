@@ -1,4 +1,7 @@
 #include "list.h"
+#include "pthread.h"
+#include "stdlib.h"
+#include "stdio.h"
 
 // Init list structure
 int init_list(int_ll_t *list)

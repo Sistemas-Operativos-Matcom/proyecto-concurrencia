@@ -3,7 +3,12 @@
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    pthread_mutex_t mutex;
+
+    int value;
+
+    struct _integer_linked_list_t *next;
+    
 } int_ll_t;
 
 // Init list structure
