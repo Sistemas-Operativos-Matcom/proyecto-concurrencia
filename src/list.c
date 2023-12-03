@@ -81,7 +81,47 @@ int index_list(int_ll_t *list, int index, int *out_value)
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    // TODO: Your code here!
+    pthread_mutex_lock(&list->lock);
+
+    // Arreglar index fuera de rango
+    if (index < 0)
+    {
+        index = 0;
+    }
+    if (index > list->size)
+    {
+        index = list->size;
+    }
+    
+    // Trabajar con el primer elemento de la lista
+    if (index == 0)
+    {
+        node* new = (node*)malloc(sizeof(node));
+        new->value = value;
+
+        new->next = list->root;
+        list->root = new;
+        list->size++;
+        pthread_mutex_unlock(&list->lock);
+        return 0;
+    }
+
+    int count = 0;
+    // Buscar el nodo padre para insertar
+    node* temp = list->root;
+    while (count < index - 1)
+    {
+        count++;
+        temp = temp->next;
+    }
+
+    node* new = (node*)malloc(sizeof(node));
+    new->value = value;
+
+    new->next = temp->next;
+    temp->next = new;
+    list->size++;
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
 
