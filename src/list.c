@@ -3,6 +3,18 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+int size = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+int_ll_t *add_element(int value, int_ll_t *next)
+{
+    int_ll_t *new = (int_ll_t *)malloc(sizeof(int_ll_t));
+    new->value = value;
+    new->next = next;
+    pthread_mutexattr_init(&mutex);
+    return new;
+}
+
 // Init list structure
 int init_list(int_ll_t *list)
 {
