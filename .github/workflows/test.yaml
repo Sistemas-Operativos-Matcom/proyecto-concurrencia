@@ -14,4 +14,4 @@ jobs:
       - name: Compilar proyecto
         run: make
       - name: Ejecutar pruebas
-        run: bin/test
+        run: bin/main

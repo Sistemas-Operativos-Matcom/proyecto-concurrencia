@@ -1,9 +1,35 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include <pthread.h>
+
+
+typedef struct treap_node{
+    int value;
+    int key,priority;
+    struct treap_node *left,*right;
+    int size; 
+} treap_node_t;
+
+typedef struct{
+    treap_node_t *root;
+    pthread_mutex_t mutex;
+} treap_t;
+
+void treap_init(treap_t *treap);
+void treap_insert(treap_t *treap,int value,int pos);
+void treap_delete(treap_t *treap,int pos);
+int treap_find(treap_t *treap,int pos);
+void treap_print(const treap_t *treap);
+void treap_free(treap_t *treap);
+int treap_get_size(const treap_t *treap);
+
+
+
+
 // Integer Linked Lists
-typedef struct _integer_linked_list_t
-{
-    // TODO: Your code here!
+typedef struct _integer_linked_list_t{
+    treap_t treap;
+    pthread_mutex_t mutex;
 } int_ll_t;
 
 // Init list structure
