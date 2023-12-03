@@ -149,7 +149,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     }
     
     // Arreglar index fuera de rango
-    if (index >= list->size)
+    if (index = list->size)
     {
         index = list->size -1;
     }
