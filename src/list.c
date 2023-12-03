@@ -6,6 +6,7 @@
 // Init the list 
 int init_list(int_ll_t *list)
 {
+    pthread_mutex_init(&list->lock, NULL);
     list->root = NULL;
     list->size = 0;
     return 0;
@@ -20,6 +21,7 @@ int size_list(int_ll_t *list)
 // Free list structure
 int free_list(int_ll_t *list)
 {
+    pthread_mutex_lock(&list->lock);
     node_t *curr = list->root;
     node_t *next;
 
@@ -29,15 +31,18 @@ int free_list(int_ll_t *list)
         free(curr);
         curr = next;
     }
-
-    list->root = NULL;
-    list->size = 0;
+    
+    pthread_mutex_unlock(&list->lock);
+    pthread_mutex_destroy(&list->lock);
+    free(list);
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
+    pthread_mutex_lock(&list->lock);
+
     // Fixing index.
     index = (index < 0)? 0 : index;
     index = (index >= list->size)? list->size-1 : index;
@@ -63,6 +68,8 @@ int insert_list(int_ll_t *list, int index, int value)
         curr->next = new_node;
     }
     list->size++;  
+    pthread_mutex_unlock(&list->lock);
+
     return 0;
 }
 
@@ -70,6 +77,7 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->lock);
     // Fixing index.
     index = (index < 0)? 0 : index;
     index = (index >= list->size)? list->size-1 : index;
@@ -96,12 +104,14 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         free(curr);
     }
     list->size--;  
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
 
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->lock);
     // Fixing index.
     index = (index < 0)? 0 : index;
     index = (index >= list->size)? list->size-1 : index;
@@ -117,37 +127,6 @@ int index_list(int_ll_t *list, int index, int *out_value)
     }
 
     *out_value = curr->value;
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
-
-
-// int main()
-// {
-//     int_ll_t* list = malloc(sizeof(int_ll_t));
-//     init_list(list);
-
-//     for (int i = 0; i < 10; i++)
-//     {
-//         insert_list(list,i,i);
-//     }
-
-//     int arr[10]; 
-//     int val = -1;
-//     for (int i = 0; i < 10; i++)
-//     {
-//         index_list(list,i,&val);
-//         arr[i] = val;
-
-//         // printf("val at %d ", i);
-//         // printf("%d ", val); 
-//     }
-    
-//     remove_list(list, 4 , &val);
-//     remove_list(list, 8 , &val);
-
-//     insert_list(list, 3 , 4);
-//     insert_list(list, 8 , 9);
-
-    
-//     return 0;
-// }
