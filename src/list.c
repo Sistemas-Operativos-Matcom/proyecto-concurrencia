@@ -128,6 +128,46 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
-    // TODO: Your code here!
+    pthread_mutex_lock(&list->lock);
+    // Si la lista esta vacia devolver un error
+    if (list->size == 0)
+    {
+        pthread_mutex_unlock(&list->lock);
+        return 1;
+    }
+    
+    // Analizar caso con el primer nodo
+    if (index <= 0)
+    {
+        node* temp = list->root;
+        *out_value = temp->value;
+        list->root = list->root->next;
+        free(temp);
+        list->size--;
+        pthread_mutex_unlock(&list->lock);
+        return 0;
+    }
+    
+    // Arreglar index fuera de rango
+    if (index >= list->size)
+    {
+        index = list->size -1;
+    }
+
+    // Buscar nodo padre del index a eliminar
+    int count = 0;
+    node* temp = list->root;
+    while (count < index-1)
+    {
+        count++;
+        temp = temp->next;
+    }
+
+    node* next = temp->next;
+    *out_value = next->value;
+    temp->next = temp->next->next;
+    free(next);
+    list->size--;
+    pthread_mutex_unlock(&list->lock);
     return 0;
 }
