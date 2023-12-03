@@ -91,6 +91,7 @@ void *start_inserts(void *arg)
         effective_inserts += inputs[i].times;
         effective_inserts_per_value[inputs[i].value] += inputs[i].times;
     }
+
     return NULL;
 }
 
@@ -168,6 +169,7 @@ void *start_removals(void *arg)
         free(output->values);
         free(output);
     }
+
     return NULL;
 }
 
