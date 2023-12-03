@@ -71,7 +71,7 @@ node_t *get_item(int_ll_t *list, int index)
 int index_list(int_ll_t *list, int index, int *out_value)
 {
     pthread_mutex_lock(&(list->lock));
-    node_t *current = get_item_at(list, index);
+    node_t *current = get_item(list, index);
     if (current == NULL)
     {
         pthread_mutex_unlock(&(list->lock));
@@ -93,14 +93,14 @@ int insert_list(int_ll_t *list, int index, int value)
     {
 
         node_t *next_to_root = list->root;
-        list->root = create_node(value);
+        list->root = new_node(value);
         list->root->next = next_to_root;
     }
     else
     {
-        node_t *prev = get_item_at(list, index - 1);
+        node_t *prev = get_item(list, index - 1);
         node_t *x = prev->next;
-        prev->next = create_node(value);
+        prev->next = new_node(value);
         prev->next->next = x;
     }
     list->size++;
@@ -126,11 +126,11 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         }
         else
         {
-            node_t *prev = get_item_at(list, index - 1);
+            node_t *prev = get_item(list, index - 1);
             while (prev->next == NULL && index > 0)
             {
                 index -= 1;
-                prev = get_item_at(list, index - 1);
+                prev = get_item(list, index - 1);
             }
             if (index <= 0)
             {
