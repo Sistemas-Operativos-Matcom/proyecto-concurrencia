@@ -16,16 +16,16 @@ node *create_node(int value)
 // Init list structure
 int init_list(int_ll_t *list)
 {
-    // atomic_store(&list->head, 0);
-    // atomic_store(&list->sz, 0)
-    node *dummy_node = create_node(0);
-    if (dummy_node == NULL)
-    {
-        return -1; // Memory allocation failure
-    }
-
-    atomic_init(&list->head, (uintptr_t)dummy_node);
+    atomic_init(&list->head, 0);
     atomic_init(&list->sz, 0);
+    // node *dummy_node = create_node(0);
+    // if (dummy_node == NULL)
+    // {
+    //     return -1; // Memory allocation failure
+    // }
+
+    // atomic_init(&list->head, (uintptr_t)dummy_node);
+    // atomic_init(&list->sz, 0);
 
     return 0;
 }
@@ -38,7 +38,7 @@ int free_list(int_ll_t *list)
     {
         node *curr_node = (node *)curr;
         uintptr_t next = atomic_load(&curr_node->next);
-        if (!atomic_flag_test_and_set(&curr_node->deleted))
+        if (!atomic_flag_test_and_set(&curr_node->deleted) && curr)
         {
             free(curr_node);
         }
@@ -61,7 +61,7 @@ void validate_index(int *index, int_ll_t *list)
         *index = 0;
 
     else if (*index >= atomic_load(&list->sz))
-        *index = atomic_load(&list->sz);
+        *index = atomic_load(&list->sz) - 1;
 }
 
 // Get list size
@@ -79,6 +79,8 @@ int index_list(int_ll_t *list, int index, int *out_value)
     for (int i = 0; i < index; i++)
     {
         node *curr_node = (node *)curr;
+        if (!atomic_load(&curr_node->next))
+            break;
         curr = atomic_load(&curr_node->next);
     }
 
@@ -102,6 +104,8 @@ int insert_list(int_ll_t *list, int index, int value)
         node *curr_node = (node *)curr;
         prev = curr;
         curr = atomic_load(&curr_node->next);
+        if (!curr)
+            break;
     }
 
     atomic_store(&new_node->next, curr);
@@ -132,6 +136,8 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     for (int i = 0; i < index; i++)
     {
         node *curr_node = (node *)curr;
+        if (!atomic_load(&curr_node->next))
+            break;
         prev = curr;
         curr = atomic_load(&curr_node->next);
     }
