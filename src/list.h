@@ -17,7 +17,7 @@ typedef struct _integer_linked_list_t
   int_ll_node_t *head; //apuntador a la cabeza de la lista
   int size; //tamaño de la lista
   sem_t *sem; //semáforo para limitar el acceso a la estructura de la lista
-  sem_t *sem_empty; //semáforo para evitar acceso de index_list y remove_list cuando la lista esté vacía
+  //sem_t *sem_empty; //semáforo para evitar acceso de index_list y remove_list cuando la lista esté vacía
 } int_ll_t;
 
 
