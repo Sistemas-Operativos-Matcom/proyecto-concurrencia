@@ -44,11 +44,18 @@ int index_list(int_ll_t *list, int index, int *out_value)
     // TODO: Your code here!
     //outvalue sera distinto de 0 cuando deje de haber un siguiente nodo o alcance el indice
     pthread_mutex_lock(&(list->mutex));
-    out_value = 0;
+    *out_value = 0;
     if (list->length != 0)
     {
-        node* node = getNode(list,index);
-        out_value = node->value;
+        node* my_node = (node*)malloc(sizeof(node));
+        my_node = list->first_node;
+        int curr_index = 0;
+        while (my_node->next_node != NULL && curr_index < index)
+        {
+            my_node = my_node->next_node;
+            curr_index++; 
+        }
+        *out_value = my_node->value;
     }
   
     // if (index < list->length)
@@ -84,7 +91,14 @@ int insert_list(int_ll_t *list, int index, int value)
     if (list->length != 0 && index > 0)
     {
         // Inserta el nuevo nodo después del nodo actual
-        node* prev_node = get_node(list,index-1);
+        node* prev_node = (node*)malloc(sizeof(node));
+        prev_node = list->first_node;
+        int curr_index = 0;
+        while (prev_node->next_node != NULL && curr_index < index)
+        {
+            prev_node = prev_node->next_node;
+            curr_index++; 
+        }
         node* temp = prev_node->next_node;
         prev_node->next_node = new_node;
         prev_node->next_node->next_node = temp;
@@ -158,7 +172,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)//se borra ese element
         result = 0;
         if (index <= 0 || list->length == 1)
         {
-            out_value = list->first_node->value;
+            *out_value = list->first_node->value;
             node* temp = list->first_node;
             list->first_node = list->first_node->next_node;
             free(temp);
