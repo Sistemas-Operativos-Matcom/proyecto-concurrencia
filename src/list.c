@@ -8,9 +8,9 @@ int size = 0;
 int_ll_t *add_element(int value, int_ll_t *next)
 {
     int_ll_t *new = (int_ll_t *)malloc(sizeof(int_ll_t));
-    pthread_mutex_init(&new->mutex, NULL);
     new->value = value;
     new->next = next;
+    pthread_mutex_init(&new->mutex, NULL);
     return new;
 }
 
@@ -39,10 +39,10 @@ int free_list(int_ll_t *list)
     if(list->next)
         destroy(list->next);
 
-    pthread_mutex_destroy(&list->mutex);
-    free(list);
-    
     size = 0;
+    pthread_mutex_destroy(&list->mutex);
+    
+    free(list);
     
     return 0;
 }
@@ -56,13 +56,13 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->mutex);
+
     if(size == 0)
     {
         *out_value = 1;
         return 0;
     }
-
-    pthread_mutex_lock(&list->mutex);
 
     index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
@@ -105,13 +105,13 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->mutex);
+
     if(size == 0)
     {
         *out_value = 1;
         return 0;
     }
-
-    pthread_mutex_lock(&list->mutex);
     
     index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
