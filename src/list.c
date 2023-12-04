@@ -5,12 +5,14 @@
 
 int size = 0;
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 int_ll_t *add_element(int value, int_ll_t *next)
 {
     int_ll_t *new = (int_ll_t *)malloc(sizeof(int_ll_t));
     new->value = value;
     new->next = next;
-    pthread_mutex_init(&new->mutex, NULL);
     return new;
 }
 
@@ -19,7 +21,6 @@ void destroy(int_ll_t *current)
     if(current->next)
         destroy(current->next);
     
-    pthread_mutex_destroy(&current->mutex);
     free(current);
     return;
 }
@@ -27,22 +28,26 @@ void destroy(int_ll_t *current)
 // Init list structure
 int init_list(int_ll_t *list)
 {
+    pthread_mutex_lock(&mutex);
     list = add_element(0, NULL);
+    pthread_mutex_unlock(&mutex);
+
     return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    pthread_mutex_lock(&list->mutex);
+    pthread_mutex_lock(&mutex);
 
     if(list->next)
         destroy(list->next);
 
     size = 0;
-    pthread_mutex_destroy(&list->mutex);
     
     free(list);
+
+    pthread_mutex_unlock(&mutex);
     
     return 0;
 }
@@ -56,11 +61,12 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
-    pthread_mutex_lock(&list->mutex);
+    pthread_mutex_lock(&mutex);
 
     if(size == 0)
     {
         *out_value = 1;
+        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
@@ -76,14 +82,14 @@ int index_list(int_ll_t *list, int index, int *out_value)
 
     *out_value = current->next->value;
 
-    pthread_mutex_unlock(&list->mutex);
+    pthread_mutex_unlock(&mutex);
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    pthread_mutex_lock(&list->mutex);
+    pthread_mutex_lock(&mutex);
     
     index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
@@ -98,18 +104,20 @@ int insert_list(int_ll_t *list, int index, int value)
     current->next = add_element(value, current->next);
     size++;
 
-    pthread_mutex_unlock(&list->mutex);
+    pthread_mutex_unlock(&mutex);
     return 0;
 }
 
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
-    pthread_mutex_lock(&list->mutex);
+    pthread_mutex_lock(&mutex);
 
     if(size == 0)
     {
         *out_value = 1;
+
+        pthread_mutex_unlock(&mutex);
         return 0;
     }
     
@@ -128,12 +136,11 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     
     *out_value = old->value;
 
-    pthread_mutex_destroy(&old->mutex);
     free(old);
 
     size--;
 
-    pthread_mutex_unlock(&list->mutex);
+    pthread_mutex_unlock(&mutex);
 
     return 0;
 }
