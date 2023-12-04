@@ -19,9 +19,13 @@ int init_list(int_ll_t *list)
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    // TODO: Your code here!
-    //free(list);
     pthread_mutex_lock(&(list->mutex));
+    node* curr_node = list->first_node;
+    while(curr_node != NULL){
+        node* temp = curr_node->next_node;
+        free(curr_node);
+        curr_node = temp;
+    }
     free(list);
     pthread_mutex_unlock(&(list->mutex));
     int res = pthread_mutex_destroy(&(list->mutex));
