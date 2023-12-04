@@ -59,14 +59,15 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&mutex);
 
     if(size == 0)
     {
         *out_value = 1;
-        return 0;
+        pthread_mutex_unlock(&mutex);
+        return 1;
     }
 
-    pthread_mutex_lock(&mutex);
 
     index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
@@ -109,14 +110,15 @@ int insert_list(int_ll_t *list, int index, int value)
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&mutex);
 
     if(size == 0)
     {
         *out_value = 1;
-        return 0;
+        pthread_mutex_unlock(&mutex);
+        return 1;
     }
     
-    pthread_mutex_lock(&mutex);
     
     index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
