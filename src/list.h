@@ -1,9 +1,15 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+
+#include "pthread.h"
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    int value;
+
+    struct _integer_linked_list_t *next;
+    
 } int_ll_t;
 
 // Init list structure
