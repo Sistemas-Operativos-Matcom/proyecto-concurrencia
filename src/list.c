@@ -5,8 +5,7 @@
 
 int size = 0;
 
-pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t size_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int_ll_t *add_element(int value, int_ll_t *next)
 {
@@ -26,7 +25,7 @@ int init_list(int_ll_t *list)
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    pthread_mutex_lock(&list_mutex);
+    pthread_mutex_lock(&mutex);
 
     int_ll_t *old = list;
     int_ll_t *current;
@@ -38,22 +37,42 @@ int free_list(int_ll_t *list)
         old = current;
     }
     free(old);
-
-    pthread_mutex_unlock(&list_mutex);
+    size = 0;
+    
+    pthread_mutex_unlock(&mutex);
     return 0;
 }
 
 // Get list size
 int size_list(int_ll_t *list)
 {
-    // TODO: Your code here!
-    return 0;
+    return size;
 }
 
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
-    // TODO: Your code here!
+    if(size == 0)
+    {
+        *out_value = 1;
+        return 0;
+    }
+
+    pthread_mutex_lock(&mutex);
+    
+    index = (index < 0) ? 0 : (index > size) ? size : index;
+
+    int_ll_t *current = list;
+
+    while(index > 0)
+    {
+        current = current->next;
+        index--;
+    }
+
+    *out_value = current->value;
+
+    pthread_mutex_unlock(&mutex);
     return 0;
 }
 
