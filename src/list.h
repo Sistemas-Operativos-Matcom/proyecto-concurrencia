@@ -5,6 +5,8 @@ typedef struct _integer_linked_list_t
 {
     int value;
 
+    pthread_mutex_t mutex;
+
     struct _integer_linked_list_t *next;
     
 } int_ll_t;

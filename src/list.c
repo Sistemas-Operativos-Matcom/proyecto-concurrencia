@@ -5,11 +5,10 @@
 
 int size = 0;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
 int_ll_t *add_element(int value, int_ll_t *next)
 {
     int_ll_t *new = (int_ll_t *)malloc(sizeof(int_ll_t));
+    pthread_mutex_init(&new->mutex, NULL);
     new->value = value;
     new->next = next;
     return new;
@@ -25,7 +24,7 @@ int init_list(int_ll_t *list)
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&list->mutex);
 
     int_ll_t *old = list;
     int_ll_t *current;
@@ -39,7 +38,7 @@ int free_list(int_ll_t *list)
     free(old);
     size = 0;
     
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&list->mutex);
     return 0;
 }
 
@@ -58,7 +57,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
         return 0;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&list->mutex);
 
     index = (index < 0) ? 0 : (index > size) ? size : index;
 
@@ -71,15 +70,16 @@ int index_list(int_ll_t *list, int index, int *out_value)
     }
 
     *out_value = current->value;
+    size--;
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&list->mutex);
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&list->mutex);
     
     index = (index < 0) ? 0 : (index > size) ? size : index;
 
@@ -92,8 +92,9 @@ int insert_list(int_ll_t *list, int index, int value)
     }
 
     current->next = add_element(value, current->next);
+    size++;
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&list->mutex);
     return 0;
 }
 
@@ -106,7 +107,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
         return 0;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&list->mutex);
     
     index = (index < 0) ? 0 : (index > size) ? size : index;
 
@@ -122,7 +123,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     current->next = current->next->next;
     free(old);
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&list->mutex);
 
     return 0;
 }
