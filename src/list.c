@@ -64,7 +64,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
 
     pthread_mutex_lock(&list->mutex);
 
-    index = (index < 0) ? 0 : (index > size) ? size - 1 : index;
+    index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
     int_ll_t *current = list;
 
@@ -74,7 +74,7 @@ int index_list(int_ll_t *list, int index, int *out_value)
         index--;
     }
 
-    *out_value = current->value;
+    *out_value = current->next->value;
 
     pthread_mutex_unlock(&list->mutex);
     return 0;
@@ -113,7 +113,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
 
     pthread_mutex_lock(&list->mutex);
     
-    index = (index < 0) ? 0 : (index > size) ? size - 1 : index;
+    index = (index < 0) ? 0 : (index >= size) ? size - 1 : index;
 
     int_ll_t *current = list;
 
