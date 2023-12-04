@@ -47,7 +47,7 @@ void *insert_worker(void *arg)
     for (int i = 0; i < input->times; ++i)
     {
         int size = size_list(the_list);
-        int pos = rand() % size;
+        int pos = rand() % (size + 1);
         if (insert_list(the_list, pos, input->value) != 0)
         {
             correct_insert = 0;
@@ -116,7 +116,7 @@ void *remove_worker(void *arg)
     for (int i = 0; i < input->times; ++i)
     {
         int size = size_list(the_list);
-        int pos = rand() % size;
+        int pos = rand() % (size + 1);
         int value;
         if (remove_list(the_list, pos, &value) == 0)
         {
@@ -184,11 +184,14 @@ void *index_worker(void *arg)
     for (int i = 0; i < input->times; ++i)
     {
         int size = size_list(the_list);
-        int pos = rand() % size;
+        int pos = rand() % (size + 1);
         int value;
-        if (index_list(the_list, pos, &value) != 0)
+        if (index_list(the_list, pos, &value) == 0)
         {
-            correct_index = 0;
+            if (value < 0 || value > MAX_NUM)
+            {
+                correct_index = 0;
+            }
         }
     }
     return NULL;
@@ -288,7 +291,7 @@ int main(int argc, char **argv)
     }
     // Launch generators
     pthread_t generators_starter;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &begin);
+    clock_gettime(CLOCK_MONOTONIC, &begin);
     if (pthread_create(&generators_starter, NULL, start_generators, NULL) != 0)
     {
         printf("Error al crear el hilo de lanzamiento de generadores!\n");
@@ -301,7 +304,7 @@ int main(int argc, char **argv)
         printf("Error al esperar por el hilo de lanzamiento de generadores!\n");
         exit(1);
     }
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
     // Test size
     int expected_size = effective_inserts - effective_removals;
