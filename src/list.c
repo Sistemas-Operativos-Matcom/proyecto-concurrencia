@@ -2,31 +2,29 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-pthread_mutex_t lock;
 int init_list(int_ll_t *list)
 {
     list->size = 0;
-    list->NextNode = NULL;
-    list->value = -1;
-    pthread_mutex_init(&lock, NULL);
+    list->First = NULL;
+    pthread_mutex_init(&list->lock, NULL);
     return 0;
 }
 
 // Free list structure
 int free_list(int_ll_t *list)
 {
-    pthread_mutex_lock(&lock);
-    int count = 0;
-    int_ll_t *n = list;
-    int_ll_t *n2 = list->NextNode;
-    while (count < list->size)
+    pthread_mutex_lock(&list->lock);
+    while (list->size != 0)
     {
-        free(n);
-        n = n2;
-        n2 = n2->NextNode;
+        Element_t *temp = list->First;
+        list->First = list->First->next;
+        list->size--;
+        free(temp);
     }
-    pthread_mutex_unlock(&lock);  
-    pthread_mutex_destroy(&lock);
+    list->size = 0;
+    pthread_mutex_unlock(&list->lock);  
+    pthread_mutex_destroy(&list->lock);
+    return 0;
 }
 
 // Get list size
@@ -38,81 +36,127 @@ int size_list(int_ll_t *list)
 // Get element at index
 int index_list(int_ll_t *list, int index, int *out_value)
 {
+    pthread_mutex_lock(&list->lock);
     if (list->size == 0)
     {
+        pthread_mutex_unlock(&list->lock);
         return 1;
+    }
+
+
+    if (index <= 0)
+    {
+        *out_value = list->First->value;
+        pthread_mutex_unlock(&list->lock);
+        return 0;
     }
     if (index >= list->size)
     {
         index = list->size - 1;
     }
     int count = 0;
-    int_ll_t *curr = list;
+    Element_t *curr = list->First;
     while (count < index)
     {
-        curr = curr->NextNode;
+        curr = curr->next;
         count ++;
     }
     *out_value = curr->value;
-    pthread_mutex_unlock(&lock); 
+    pthread_mutex_unlock(&list->lock); 
     return 0;
 }
 
 // Insert element at index
 int insert_list(int_ll_t *list, int index, int value)
 {
-    if (index == 0)
+    
+    pthread_mutex_lock(&list->lock);
+    if (list->size == 0)
     {
-        list->value = value;
+        Element_t *new = malloc(sizeof(Element_t));
+        new->value = value;
+        list->First = new;
+        list->size = 1;
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
-    if (index > list->size)
+
+    if (index <= 0)
     {
-        index = list->size;
+        Element_t *new = malloc(sizeof(Element_t));
+        new->value = value;
+        new->next = list->First;
+        list->First = new;
+        list->size++;
+        pthread_mutex_unlock(&list->lock);
+        return 0;
+    }
+    Element_t *curr = list->First;
+    if (index > list->size - 1)
+    {
+        index = list->size - 1;
     }
     int count = 0;
-    int_ll_t *curr = list;
-    while (count < index - 1)
+    while (count < index -1)
     {
-        curr = curr->NextNode;
+        curr = curr->next;
         count ++;
     }
-    int_ll_t *temp = curr->NextNode;
-    int_ll_t *new = malloc(sizeof(int_ll_t));
-    curr->NextNode = new;
+    Element_t *temp = curr->next;
+    Element_t *new = malloc(sizeof(Element_t));
+    curr->next = new;
     new->value = value;
-    new->NextNode = temp;
+    new->next = temp;
     list->size ++;
-    pthread_mutex_unlock(&lock); 
+    pthread_mutex_unlock(&list->lock); 
     return 0;
 }
 
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value)
 {
-    pthread_mutex_lock(&lock);
-    if (index == 0)
+    pthread_mutex_lock(&list->lock);
+    if (list->size == 0)
     {
-        *out_value = list->value;
-        int size = list->size -1;
-        list = list->NextNode;
-        list->size = size;
+        pthread_mutex_unlock(&list->lock);
+        return 1;
+    }
+    if (list->size == 1)
+    {
+        *out_value = list->First->value;
+        list->size = 0;
+        Element_t *temp = list->First;
+        list->First = NULL;
+        free(temp);
+        pthread_mutex_unlock(&list->lock);
         return 0;
     }
-    if (index > list->size)
+    if (index <= 0)
     {
-        index = list->size;
+        *out_value = list->First->value;
+        list->size = list->size -1;
+        Element_t *temp = list->First;
+        list->First = list->First->next;
+        free(temp);
+        pthread_mutex_unlock(&list->lock);
+        return 0;
+    }
+    Element_t* curr = list->First;
+    if (index > list->size - 1)
+    {
+        index = list->size - 1;
     }
     int count = 0;
-    int_ll_t *curr = list;
-    while (count < index - 1)
+    while (count < index -1)
     {
-        curr = curr->NextNode;
+        curr = curr->next;
         count ++;
     }
-    int_ll_t *temp = curr->NextNode;
-    curr->NextNode = temp->NextNode;
+    Element_t *temp = curr->next;
+    *out_value = temp->value;
+    curr->next = temp->next;
     list->size --;
-    pthread_mutex_unlock(&lock); 
+    free(temp);
+    pthread_mutex_unlock(&list->lock); 
     return 0;
 }
