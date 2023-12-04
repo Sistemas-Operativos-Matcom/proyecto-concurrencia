@@ -14,6 +14,16 @@ int_ll_t *add_element(int value, int_ll_t *next)
     return new;
 }
 
+void destroy(int_ll_t *current)
+{
+    if(current->next)
+        destroy(current->next);
+    
+    pthread_mutex_destroy(&current->mutex);
+    free(current);
+    return;
+}
+
 // Init list structure
 int init_list(int_ll_t *list)
 {
@@ -26,19 +36,14 @@ int free_list(int_ll_t *list)
 {
     pthread_mutex_lock(&list->mutex);
 
-    int_ll_t *old = list;
-    int_ll_t *current;
+    if(list->next)
+        destroy(list->next);
 
-    while(old->next)
-    {
-        current = old->next;
-        free(old);
-        old = current;
-    }
-    free(old);
+    pthread_mutex_destroy(&list->mutex);
+    free(list);
+    
     size = 0;
     
-    pthread_mutex_unlock(&list->mutex);
     return 0;
 }
 
@@ -70,7 +75,6 @@ int index_list(int_ll_t *list, int index, int *out_value)
     }
 
     *out_value = current->value;
-    size--;
 
     pthread_mutex_unlock(&list->mutex);
     return 0;
@@ -121,7 +125,10 @@ int remove_list(int_ll_t *list, int index, int *out_value)
 
     int_ll_t *old = current->next;
     current->next = current->next->next;
+    pthread_mutex_destroy(&old->mutex);
     free(old);
+
+    size--;
 
     pthread_mutex_unlock(&list->mutex);
 
