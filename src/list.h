@@ -5,6 +5,11 @@
 #ifndef INT_LL_H
 #define INT_LL_H
 
+typedef struct node_t
+{
+    int data;
+    struct node_t *next;
+} node_t;
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
@@ -14,11 +19,6 @@ typedef struct _integer_linked_list_t
 } int_ll_t;
 
 // Estructura para el nodo de la linked list
-typedef struct node
-{
-    int data;
-    node_t *next;
-} node_t;
 
 // Init list structure
 int init_list(int_ll_t *list);
