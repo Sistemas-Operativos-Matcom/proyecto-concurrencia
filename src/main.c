@@ -31,7 +31,7 @@ float correct_index = 0.5;
 int results_cant[MAX_NUM + 1];
 struct timespec begin, end;
 
-int_ll_t *the_list;
+linkedlist_t *the_list;
 
 // Generators
 
@@ -282,7 +282,7 @@ start_generators(void *arg)
 int main(int argc, char **argv)
 {
     // Init list
-    the_list = malloc(sizeof(int_ll_t));
+    the_list = malloc(sizeof(linkedlist_t));
     // Test init
     if (init_list(the_list) != 0)
     {
