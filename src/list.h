@@ -1,9 +1,21 @@
+#include <pthread.h>
 #ifndef INT_LL_H
 #define INT_LL_H
+
+// Node of linked list
+typedef struct Node
+{
+    struct Node* prev;
+    struct Node* next;
+    int data;
+}Node;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    Node* head;
+    int size;
+    pthread_mutex_t lock;
 } int_ll_t;
 
 // Init list structure
