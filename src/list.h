@@ -1,9 +1,20 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include "pthread.h"
+
+typedef struct node_t
+{
+    struct node_t *next;
+    int value;
+    
+}node_t;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    node_t *head;
+    int size;
+    pthread_mutex_t mutex;
 } int_ll_t;
 
 // Init list structure
