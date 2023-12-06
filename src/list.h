@@ -1,9 +1,20 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include <pthread.h>
+
+// Linked Lists Nodes
+typedef struct node{
+  int value;
+  struct node *next;
+  struct node *prev;
+} node_t;
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+  pthread_mutex_t lock;
+  node_t *head;
+  int size;
 } int_ll_t;
 
 // Init list structure
@@ -23,4 +34,5 @@ int insert_list(int_ll_t *list, int index, int value);
 
 // Remove element at index
 int remove_list(int_ll_t *list, int index, int *out_value);
+
 #endif
