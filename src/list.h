@@ -6,7 +6,8 @@ typedef struct node
 {
     int data;
     struct node *next;
-}node_t
+} node_t;
+
 typedef struct _integer_linked_list_t
 {
     int size;
