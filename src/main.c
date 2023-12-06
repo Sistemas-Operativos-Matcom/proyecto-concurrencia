@@ -194,6 +194,7 @@ void *index_worker(void *arg)
             }
         }
     }
+
     return NULL;
 }
 
