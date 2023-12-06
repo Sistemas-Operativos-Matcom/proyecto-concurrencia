@@ -66,6 +66,12 @@ int index_list(int_ll_t *list, int index, int *out_value)
 {
     //bloqueamos
     pthread_mutex_lock(&list->lock);
+    //si la lista es vacia devolvemos 0
+    if(list->size == 0){
+        //desbloqueamos
+        pthread_mutex_unlock(&list->lock);
+        return 1; 
+    } 
     //hacemos las comprobaciones pertinentes con respecto al indice
     int aux_index = index;
     if(index < 0){
@@ -155,11 +161,11 @@ int remove_list(int_ll_t *list, int index, int *out_value)
 {
     //bloqueamos
     pthread_mutex_lock(&list->lock);
-    //si la lista es vacia no eliminamos
+    //si la lista es vacia devolvemos 0
     if(list->size == 0){
         //desbloqueamos
         pthread_mutex_unlock(&list->lock);
-        return 0; 
+        return 1; 
     } 
     //hacemos las comprobaciones pertinentes con respecto al indice
     int aux_ind = index;
