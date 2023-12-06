@@ -54,6 +54,10 @@ int index_list(int_ll_t *list, int index, int *out_value)
 {
     
     pthread_mutex_lock(&list->lock); 
+    if(list->size==0) {
+      pthread_mutex_unlock(&list->lock);
+      return 1;
+    }
     //Fix index
     int ind=index;
     if(index<0)ind =0;
@@ -130,7 +134,7 @@ int remove_list(int_ll_t *list, int index, int *out_value)
     //If can`t remove anything, finish
     if(list->size==0){
         pthread_mutex_unlock(&list->lock); 
-        return 0;
+        return 1;
     } 
     //Fix index
     int ind=index;
