@@ -2,6 +2,8 @@
 #define INT_LL_H
 #include <semaphore.h>
 #include <stdlib.h>
+#include <pthread.h>
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
