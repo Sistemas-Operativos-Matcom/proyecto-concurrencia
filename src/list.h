@@ -1,9 +1,14 @@
 #ifndef INT_LL_H
 #define INT_LL_H
+#include <semaphore.h>
+#include <stdlib.h>
+#include <pthread.h>
+
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    int value;
+    struct int_ll_t *next;
 } int_ll_t;
 
 // Init list structure
