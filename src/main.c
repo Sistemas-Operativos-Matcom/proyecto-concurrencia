@@ -289,7 +289,8 @@ int main(int argc, char **argv)
         printf("Error al inicializar la lista!\n");
         correct_init_size_free = 0;
     }
-    // Launch generators
+
+    //Launch generators
     pthread_t generators_starter;
     clock_gettime(CLOCK_MONOTONIC, &begin);
     if (pthread_create(&generators_starter, NULL, start_generators, NULL) != 0)
