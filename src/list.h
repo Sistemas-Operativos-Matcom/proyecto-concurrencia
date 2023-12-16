@@ -1,6 +1,8 @@
 #ifndef INT_LL_H
 #define INT_LL_H
 
+#include <pthread.h>
+
 typedef struct _node {
     int value; 
     struct _node *next;
