@@ -1,9 +1,19 @@
+#include <pthread.h>
+#include <stdlib.h>
+
 #ifndef INT_LL_H
 #define INT_LL_H
+//casillas de la linkedlist
+typedef struct Celda {
+    int valor;         //valor de la casilla  
+    struct Celda* contiguo;//casilla siguiente
+} celda;
 // Integer Linked Lists
 typedef struct _integer_linked_list_t
 {
-    // TODO: Your code here!
+    celda* inicio;//primera casilla
+    int cantidad;//cantidad actual de casillas
+    pthread_mutex_t lock;//bandera para hacer los lock
 } int_ll_t;
 
 // Init list structure
